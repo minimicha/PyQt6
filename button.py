@@ -1,49 +1,67 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QMainWindow, QApplication,
+    QLabel, QToolBar, QStatusBar
+)
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtCore import Qt, QSize, QPoint
 
-class EmptyWindow(QWidget):
+class MainWindow(QMainWindow):
 
     def __init__(self):
-        # constructor of empty class
         super().__init__()
         self.initializeUI()
 
     def initializeUI(self):
-        # set up application
-        self.setGeometry(100, 100, 250, 150) # x, y, width, height
-        self.setWindowTitle('instance created no matter how many windows/boxes we need')
-        self.setUpMainWindow()
+        self.centerWindow()
+        self.setWindowTitle("My Awesome App")
+
+        label = QLabel("Hello!")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setCentralWidget(label)
+
+        toolbar = QToolBar("My main toolbar")
+        toolbar.setIconSize(QSize(50,50))
+        self.addToolBar(toolbar)
+
+        button_action = QAction(QIcon("green.png"), "green", self)
+        button_action.setStatusTip("This is your button")
+        button_action.triggered.connect(self.onMyToolBarButtonClick)
+        button_action.setCheckable(True)
+        toolbar.addAction(button_action)
+
+        toolbar.addSeparator()
+        toolbar.addSeparator()
+
+        button_action2 = QAction(QIcon("red.png"), "red", self)
+        button_action2.setStatusTip("This is your button2")
+        button_action2.triggered.connect(self.onMyToolBarButtonClick)
+        button_action2.setCheckable(True)
+        toolbar.addAction(button_action2)
+
+        toolbar.addSeparator()
+        toolbar.addSeparator()
+
+        button_action = QAction(QIcon("green.png"), "green2", self)
+        button_action.setStatusTip("This is your button3")
+        button_action.triggered.connect(self.onMyToolBarButtonClick)
+        button_action.setCheckable(True)
+        toolbar.addAction(button_action)
+
+        self.setStatusBar(QStatusBar(self))
         self.show()
 
-    def setUpMainWindow(self):
-        """ Create a button that changes text of a QLabel"""
-        self.times_pressed = 0
+    def centerWindow(self):
+        frame_geometry = self.frameGeometry()
+        #center_location = self.screen().availableGeometry().center()
+        center_location = QPoint(1300,700)
+        frame_geometry.moveCenter(center_location)
+        self.move(frame_geometry.topLeft())
 
-        self.name_label = QLabel("Don't push the button",self)
-        self.alignment = Qt.AlignmentFlag.AlignCenter
-        self.name_label.setAlignment(self.alignment) # AlignRight,AlignHCenter, etc
-        self.name_label.move(60, 30)
-
-        self.button = QPushButton("Push Me", self) # reminder = inherits QWidget
-        self.button.move(80, 70)
-        self.button.clicked.connect(self.buttonClicked)
-
-    def buttonClicked(self):
-        self.times_pressed += 1
-        if self.times_pressed == 1:
-            self.name_label.setText("Why'd you press me?")
-        elif self.times_pressed == 2:
-            self.name_label.setText("I'm warning you.")
-            self.button.setText("Don't...")
-            self.button.adjustSize()
-            self.button.move(80, 70)
-        elif self.times_pressed == 3:
-            print("The window has been closed.")
-            self.close() # QWidget method close()
-
+    def onMyToolBarButtonClick(self, signal):
+        print("click", signal)
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv) # instance created no matter how many windows/boxes we need
-    window = EmptyWindow()
+    app = QApplication(sys.argv)
+    window = MainWindow()
     sys.exit(app.exec())
